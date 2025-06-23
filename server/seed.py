@@ -1,16 +1,17 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from models import db, Episode, Guest, Appearance  # Adjust import based on your project structure
+# server/seed.py
+import sys
+import os
 
-# Initialize Flask app
-app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'  # Replace with your database URI
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db.init_app(app)
+# Add the project root to sys.path to resolve imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from server import create_app
+from server.models import db, Episode, Guest, Appearance  # Changed from `from server import create_app, db`
 
 def seed_data():
+    app = create_app()
     with app.app_context():
-        # Drop all tables and recreate them
+        # Drop all tables and recreate them (optional, comment out to preserve data)
         db.drop_all()
         db.create_all()
 
@@ -46,7 +47,7 @@ def seed_data():
         db.session.add_all(guests)
         db.session.commit()
 
-        # Seed Appearances (10 records)
+        # Seed Appearances (12 records for variety)
         appearances = [
             Appearance(rating=8, episode_id=1, guest_id=1),  # Alice on Episode 101
             Appearance(rating=7, episode_id=2, guest_id=2),  # Bob on Episode 102
@@ -58,6 +59,8 @@ def seed_data():
             Appearance(rating=6, episode_id=8, guest_id=8),  # Henry on Episode 108
             Appearance(rating=8, episode_id=9, guest_id=9),  # Isabella on Episode 109
             Appearance(rating=7, episode_id=10, guest_id=10),  # James on Episode 110
+            Appearance(rating=8, episode_id=1, guest_id=2),  # Bob also on Episode 101
+            Appearance(rating=9, episode_id=2, guest_id=3),  # Carol also on Episode 102
         ]
         db.session.add_all(appearances)
         db.session.commit()
